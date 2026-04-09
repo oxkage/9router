@@ -475,6 +475,7 @@ export async function refreshNousToken(refreshToken, log) {
       body: new URLSearchParams({
         grant_type: "refresh_token",
         refresh_token: refreshToken,
+        client_id: "hermes-cli",
       }),
     });
 
@@ -495,7 +496,7 @@ export async function refreshNousToken(refreshToken, log) {
         Authorization: `Bearer ${tokenData.access_token}`,
       },
       body: JSON.stringify({
-        min_ttl_seconds: 3600,
+        min_ttl_seconds: 7200,
       }),
     });
 
