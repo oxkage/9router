@@ -1049,6 +1049,46 @@ const PROVIDERS = {
         user_code: "",
         interval: config.pollInterval / 1000,
         _isCodeBuddy: true,
+      };
+    },
+    pollToken: async (config, deviceCode) => {
+      const response = await fetch(config.tokenUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "User-Agent": config.userAgent,
+          "X-Requested-With": "XMLHttpRequest",
+          "X-Domain": "copilot.tencent.com",
+          "X-No-Authorization": "true",
+          "X-No-User-Id": "true",
+          "X-Product": "SaaS",
+        },
+        body: JSON.stringify({ state: deviceCode }),
+      });
+      if (!response.ok) return { ok: false, data: { error: "request_failed" } };
+      const data = await response.json();
+      // code 11217 = pending, code 0 = success
+      if (data.code === 0 && data.data?.accessToken) {
+        return {
+          ok: true,
+          data: {
+            access_token: data.data.accessToken,
+            refresh_token: data.data.refreshToken || "",
+            token_type: data.data.tokenType || "Bearer",
+          },
+        };
+      }
+      if (data.code === 11217) return { ok: true, data: { error: "authorization_pending" } };
+      return { ok: false, data: { error: data.msg || "unknown_error" } };
+    },
+    mapTokens: (tokens) => ({
+      accessToken: tokens.access_token,
+      refreshToken: tokens.refresh_token,
+      expiresIn: 86400,
+      providerSpecificData: {},
+    }),
+  },
   nous: {
     config: NOUS_CONFIG,
     flowType: "device_code",
