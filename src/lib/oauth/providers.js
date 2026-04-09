@@ -1207,6 +1207,10 @@ export async function pollForToken(providerName, deviceCode, codeVerifier, extra
           success: false,
           error: result.data.error || 'no_access_token',
           errorDescription: result.data.error_description || result.data.message || 'No access token received'
+        };
+      }
+    }
+  },
 
   nous: {
     config: NOUS_CONFIG,
